@@ -1,3 +1,4 @@
+package tools;
 import java.security.PublicKey;
 import java.util.HashMap;
 
@@ -5,7 +6,7 @@ public class Equipement {
 
 private PaireClesRSA maCle; // La paire de cle de l’equipement.
 
-private Certificat monCert; // Le certificat auto-signe.
+private AutoCertificat monCert; // Le certificat auto-signe.
 
 private String monNom; // Identite de l’equipement.
 
@@ -18,7 +19,7 @@ Equipement (String nom, int port) throws Exception {
 this.monNom = nom;
 this.monPort = port;
 this.maCle = new PaireClesRSA();
-this.monCert = new Certificat(nom, this.maCle, 10);
+this.monCert = new AutoCertificat(nom, this.maCle, 10);
 
 }
 

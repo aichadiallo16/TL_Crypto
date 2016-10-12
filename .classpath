@@ -6,5 +6,7 @@
 	<classpathentry kind="lib" path="/Users/Aicha/Downloads/bcmail-jdk15on-153.jar"/>
 	<classpathentry kind="lib" path="/Users/Aicha/Downloads/bcprov-jdk15on-153.jar"/>
 	<classpathentry kind="lib" path="/Users/Aicha/Downloads/bcprov-ext-jdk15on-153.jar"/>
+	<classpathentry kind="lib" path="/Users/Aicha/Downloads/jce-ext-jdk13-153.jar"/>
+	<classpathentry kind="lib" path="/Users/Aicha/Downloads/bcpkix-jdk15on-153.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,114 +1,60 @@
 package socket;
-/**
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
+import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 
-public class Socket_client {
-	int ServerPort;
+public class Client {
+	
+	public Client() throws ClassNotFoundException {
+		
+		
+		Socket clientSocket;
+		InputStream NativeIn = null;
+		ObjectInputStream ois = null;
+		OutputStream NativeOut = null;
+		ObjectOutputStream oos = null;
+		
+		
+		
 
-	String ServerName;
+		try {
+		
+			clientSocket = new Socket(InetAddress.getLocalHost(),8080);	
+		        System.out.println("Demande de connexion");
 
-	Socket clientSocket = null;
-
-	InputStream NativeIn = null;
-
-	ObjectInputStream ois = null;
-
-	OutputStream NativeOut = null;
-
-	ObjectOutputStream oos = null;
-
-	// Creation de socket (TCP)
-
-	try {
-
-	clientSocket = new Socket(ServerName,ServerPort);
-
-	} catch (Exception e) {
-
-	// Gestion des exceptions
-
+		       
+		       
+		        NativeOut = clientSocket.getOutputStream();
+		    	oos = new ObjectOutputStream(NativeOut);
+		    	NativeIn = clientSocket.getInputStream();
+		    	ois = new ObjectInputStream(NativeIn);
+		    	oos.writeObject("Bonjour equipement");
+		    	oos.flush();
+		    	String res = (String) ois.readObject();
+		    	System.out.println(res);
+		    	ois.close();
+		    	oos.close();
+		    	NativeIn.close();
+		    	NativeOut.close();
+		        clientSocket.close();
+		       
+		}catch (UnknownHostException e) {
+			
+			e.printStackTrace();
+		}catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 	}
 
-	// Creation des flux natifs et evolues
-
-	try {
-
-	NativeOut = clientSocket.getOutputStream();
-
-	oos = new ObjectOutputStream(NativeOut);
-
-	NativeIn = clientSocket.getInputStream();
-
-	ois = new ObjectInputStream(NativeIn);
-
-	} catch (Exception e) {
-
-	// Gestion des exceptions
-
-	}
-
-	// Emission d’un String
-
-	try {
-
-	oos.writeObject(“Bonjour“);
-
-	oos.flush();
-
-	} catch (Exception e) {
-
-	// Gestion des exceptions
-
-	}
-
-	// Reception d’un String
-
-	try {
-
-	String res = (String) ois.readObject();
-
-	System.out.println(res);
-
-	} catch (Exception e) {
-
-	// Gestion des exceptions
-
-	}
-
-	// Fermeture des flux evolues et natifs
-
-	try {
-
-	ois.close();
-
-	oos.close();
-
-	NativeIn.close();
-
-	NativeOut.close();
-
-	} catch (IOException e) {
-
-	// Gestion des exceptions
-
-	}
-
-	// Fermeture de la connexion
-
-	try {
-		clientSocket.close();
-
-	} catch (IOException e) {
-
-	// Gestion des exceptions
-	}
-	}
 }
-*/
