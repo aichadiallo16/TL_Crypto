@@ -1,23 +1,22 @@
 package socket;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.cert.X509Certificate;
+
+import tools.Equipement;
 
 
 public class Client {
-	
-	public Client() throws ClassNotFoundException {
-		
-		
+	Equipement equipementClient;
+	public Client(Equipement equipementClient) throws ClassNotFoundException {
+		this.equipementClient = equipementClient;
 		Socket clientSocket;
 		InputStream NativeIn = null;
 		ObjectInputStream ois = null;
@@ -29,17 +28,26 @@ public class Client {
 
 		try {
 		
-			clientSocket = new Socket(InetAddress.getLocalHost(),8080);	
+			clientSocket = new Socket(InetAddress.getLocalHost(),5002);	
 		        System.out.println("Demande de connexion");
+		        //System.out.println("Nom du client:" + equipementClient.monNom());
 
 		       
 		       
 		        NativeOut = clientSocket.getOutputStream();
 		    	oos = new ObjectOutputStream(NativeOut);
+		    	
+		    	
 		    	NativeIn = clientSocket.getInputStream();
 		    	ois = new ObjectInputStream(NativeIn);
-		    	oos.writeObject("Bonjour equipement");
+		    	//oos.writeObject("Bonjour server\n");
+		    	//oos.flush();
+		    	
+		    	//oos.writeObject("Voici mon nom, server: " + equipementClient.monNom() + "\n");
+		    	//oos.flush();
+		    	oos.writeObject(equipementClient.monCertif().x509.toString());
 		    	oos.flush();
+		    	
 		    	String res = (String) ois.readObject();
 		    	System.out.println(res);
 		    	ois.close();
@@ -56,5 +64,6 @@ public class Client {
 			e.printStackTrace();
 		}
 	}
+
 
 }

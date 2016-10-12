@@ -1,18 +1,21 @@
 package tools;
 import java.net.Socket;
+import java.security.cert.CertificateException;
 import java.util.Scanner;
 
 import socket.Client;
 import socket.Serveur;
 
 public class Main {
-
+	static Equipement tvServer; 
+	static Equipement dvdClient; 
 	public static void main(String[] args) throws Exception {
 		
-		Equipement tv = new Equipement("samsung", 80);
+		tvServer = new Equipement("samsungServer", 80);
+		dvdClient = new Equipement("sonyClient", 80);
 		/*System.out.println("\t\t\tEquipement " + tv.monNom() );
 		System.out.println("Entrer : ");
-		System.out.println("i --> Info sur l'equipement ");
+		System.out.println("i --> Info sur l'esquipement ");
 		System.out.println("q --> Quitter ");*/
 		
 		//Scanner scanner = new Scanner(System.in);
@@ -45,7 +48,12 @@ public class Main {
 	        (new Thread() {
 	            @Override
 	            public void run() {
-	            	Serveur serveur = new Serveur();
+	            	try {
+						Serveur serveur = new Serveur(tvServer);
+					} catch (CertificateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 	            }
 	        }).start();
 		}
@@ -55,7 +63,7 @@ public class Main {
 	            @Override
 	            public void run() {
 	            	try {
-						Client client = new Client();
+						Client client = new Client(dvdClient);
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

@@ -1,6 +1,14 @@
 package tools;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
+
+import org.bouncycastle.jce.provider.X509CertificateObject;
+import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.util.io.pem.PemObjectGenerator;
+import org.bouncycastle.util.io.pem.PemWriter;
 
 public class Equipement {
 
@@ -38,7 +46,7 @@ public void affichage_ca() {
 public void affichage() {
 System.out.println("Nom:"+ "\t" + monNom() );
 System.out.println("ClePublique:"+ "\t" + maClePub().toString() );
-System.out.println("Certificat de " + monNom() + ":"+ "\t" + monCertif());
+System.out.println("Certificat de " + monNom() + ":"+ "\t" + afficheMonCertif());
 }
 
 public String monNom (){
@@ -53,7 +61,9 @@ return maCle.Publique();
 
 }
 
-public HashMap monCertif() {
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public HashMap afficheMonCertif() {
+
 HashMap info = new HashMap(); 
 info.put("SerialNumber", monCert.x509.getSerialNumber());
 info.put("Issuer", monCert.x509.getIssuerDN());
@@ -63,6 +73,13 @@ info.put("SubjectDN", monCert.x509.getSubjectDN());
 info.put("PublicKey", monCert.x509.getPublicKey());
 
 return info;
+
+}
+
+public AutoCertificat monCertif() throws IOException {
+	
+	return  monCert;
+
 
 }
 
