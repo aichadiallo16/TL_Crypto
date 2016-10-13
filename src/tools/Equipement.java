@@ -19,16 +19,18 @@ private AutoCertificat monCert; // Le certificat auto-signe.
 private String monNom; // Identite de l’equipement.
 
 private int monPort; // Le numéro de port d’ecoute.
+@SuppressWarnings("rawtypes")
+private HashMap certifCA ; 
 
 
-
-Equipement (String nom, int port) throws Exception {
+@SuppressWarnings("rawtypes")
+public Equipement (String nom, int port) throws Exception {
 
 this.monNom = nom;
 this.monPort = port;
 this.maCle = new PaireClesRSA();
 this.monCert = new AutoCertificat(nom, this.maCle, 10);
-
+this.certifCA = new HashMap();
 }
 
 public void affichage_da() {
@@ -37,9 +39,25 @@ public void affichage_da() {
 
 }
 
+public int getPort() {
+
+	return this.monPort;
+
+	}
+
 public void affichage_ca() {
 
-// Affichage de la liste des équipements de CA.
+	System.out.println(certifCA);
+
+	}
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public HashMap addCa(X509Certificate CACertif) {
+
+	
+	certifCA.put("certif", CACertif);
+	return certifCA;
+
 
 }
 
@@ -79,8 +97,8 @@ return info;
 public AutoCertificat monCertif() throws IOException {
 	
 	return  monCert;
-
-
 }
+
+
 
 }

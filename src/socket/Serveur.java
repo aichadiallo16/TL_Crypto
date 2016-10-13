@@ -12,9 +12,15 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Scanner;
+
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.X509CertificateObject;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
@@ -26,8 +32,8 @@ import tools.Certificat;
 import tools.Equipement;
 
 public class Serveur {
-	Equipement equipementServer;
-	public Serveur(Equipement equipementServer) throws CertificateException {
+	private static Equipement equipementServer;
+	public Serveur(Equipement equipementServer) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 
 		this.equipementServer = equipementServer;
 		ServerSocket serverSocket  ;
@@ -49,11 +55,11 @@ public class Serveur {
 			String pemCert = sw.toString();
 			
 			
-			serverSocket = new ServerSocket(5002);
+			serverSocket = new ServerSocket(equipementServer.getPort());
 			System.out.println("Le serveur est à l'écoute du port "+ serverSocket.getLocalPort());
 			NewServerSocket = serverSocket.accept(); 
 		        System.out.println("Un équipement s'est connecté");
-		        //System.out.println(equipementServer.monCertif().x509.toString() + "\n");
+		        
 		        
 		        NativeIn = NewServerSocket.getInputStream();	
 		    	ois = new ObjectInputStream(NativeIn);	
@@ -62,19 +68,26 @@ public class Serveur {
 		    	
 		    	String res = (String) ois.readObject();
 		    	
+		    	StringReader sr = new StringReader(res);
 		    	
-		    	StringReader sr = new StringReader(pemCert);
 		    	PemReader pr = new PemReader(sr);
-		    	X509Certificate certifRecu = certifFactory(pemCert);
+		    	
+		    	CertificateFactory cert = CertificateFactory.getInstance("X.509");
+		    	
+		    	byte[] bytes = pr.readPemObject().getContent();
+		    	ByteArrayInputStream in = (new ByteArrayInputStream(bytes));
+		    	X509Certificate certifRecu = (X509Certificate) cert.generateCertificate(in);
+		    	//on verifie le certificat recu avec la cle publique contenue dans 
+		    	certifRecu.verify(certifRecu.getPublicKey());
+		    	
+		    	System.out.println(certifRecu.getIssuerDN() + "_____");
 		    	pr.close();
 		    	
-		    	System.out.println(certifRecu.getPublicKey().toString() + "+++++++++");
-		
 		    	oos.writeObject(pemCert);
 		    	oos.flush();
-		    	oos.writeObject("Au revoir");	
+		    	/*oos.writeObject("Au revoir");	
 		    	
-		    	oos.flush();	
+		    	oos.flush();	*/
 		    	
 		    	ois.close();
 		    	oos.close();
@@ -91,18 +104,28 @@ public class Serveur {
 		}
 	
 	}
-
-	public X509Certificate certifFactory (String pr) throws UnsupportedEncodingException, CertificateException {
+	public static void main(String[] args) throws Exception {
 		
-		String clean = pr.toString().replaceAll("-----BEGIN CERTIFICATE-----", "").replaceAll("-----END CERTIFICATE-----", "");
-		byte[] bytes = clean.getBytes("UTF-8");
-		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-		CertificateFactory cert = CertificateFactory.getInstance("X.509");
-		X509Certificate certifRecu = (X509Certificate) cert.generateCertificate(in);
+		equipementServer = new Equipement("samsungServer", 8080);
+		Serveur serveur = new Serveur(equipementServer);
+		System.out.println("Entrer : ");
+		System.out.println("i --> Info sur l'esquipement ");
+		System.out.println("a --> Ajouter l'equipement ");
+		System.out.println("q --> Quitter ");
 		
-		return certifRecu;
+		Scanner scanner = new Scanner(System.in);
+		String readString = scanner.nextLine();
+		switch (readString) {
+		case "i":
+			equipementServer.affichage();
+		case "q":
+			System.exit(0);
+		
+		}
 		
 	}
+
+	
 	
 
 }
