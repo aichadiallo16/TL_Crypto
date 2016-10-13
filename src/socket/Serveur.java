@@ -1,6 +1,7 @@
 package socket;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
@@ -12,6 +13,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -24,6 +26,7 @@ import java.util.Scanner;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.X509CertificateObject;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -33,7 +36,7 @@ import tools.Equipement;
 
 public class Serveur {
 	private static Equipement equipementServer;
-	public Serveur(Equipement equipementServer) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
+	public Serveur(Equipement equipementServer) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, IllegalStateException, OperatorCreationException {
 
 		this.equipementServer = equipementServer;
 		ServerSocket serverSocket  ;
@@ -68,26 +71,30 @@ public class Serveur {
 		    	
 		    	String res = (String) ois.readObject();
 		    	
-		    	StringReader sr = new StringReader(res);
-		    	
-		    	PemReader pr = new PemReader(sr);
-		    	
-		    	CertificateFactory cert = CertificateFactory.getInstance("X.509");
-		    	
-		    	byte[] bytes = pr.readPemObject().getContent();
-		    	ByteArrayInputStream in = (new ByteArrayInputStream(bytes));
-		    	X509Certificate certifRecu = (X509Certificate) cert.generateCertificate(in);
-		    	//on verifie le certificat recu avec la cle publique contenue dans 
+
+		    	X509Certificate certifRecu = certifFactory(res);
+		    	/**
+		    	 * on verifie le certificat recu avec la cle publique contenue dans le certificat recu
+		    	 */
 		    	certifRecu.verify(certifRecu.getPublicKey());
 		    	
-		    	System.out.println(certifRecu.getIssuerDN() + "_____");
-		    	pr.close();
+		    	/**
+		    	 * Le server crée le certificat signé avec sa cle privee pour la clee publique di client
+		    	 */
+		    	Certificat certifClientparServeur = new Certificat(equipementServer.monNom(), certifRecu.getSubjectDN().toString(), certifRecu.getPublicKey(), equipementServer.maClePrivee(), 10);
+		    	
+		    	//System.out.println("Serveur: j'ai recu le certif:\n" + res + "\n+++++++++\n AutoCertif du Client d�cod�: \n" +  certifRecu
+		    	//	                  + "\n+++++++++\n G�n�ration d'un certif pour le Client: \n" + certifClientparServeur.x509.toString());
+		    	//System.out.println(certifClientparServeur.x509.getPublicKey().toString());
+		    	
+
+		    	
+		    	//System.out.println(certifRecu.getIssuerDN() + "_____");
+		    	
 		    	
 		    	oos.writeObject(pemCert);
 		    	oos.flush();
-		    	/*oos.writeObject("Au revoir");	
 		    	
-		    	oos.flush();	*/
 		    	
 		    	ois.close();
 		    	oos.close();
@@ -104,9 +111,22 @@ public class Serveur {
 		}
 	
 	}
+	
+public X509Certificate certifFactory (String res) throws UnsupportedEncodingException, CertificateException, FileNotFoundException {
+		
+		CertificateFactory fact = CertificateFactory.getInstance("X.509");
+	    InputStream is = new ByteArrayInputStream(res.getBytes(StandardCharsets.UTF_8));
+	    X509Certificate cer = (X509Certificate) fact.generateCertificate(is);
+	    //PublicKey key = cer.getPublicKey();
+		
+		return cer;
+		
+	}
+	
+	
 	public static void main(String[] args) throws Exception {
 		
-		equipementServer = new Equipement("samsungServer", 8080);
+		equipementServer = new Equipement("samsungServer", 5002);
 		Serveur serveur = new Serveur(equipementServer);
 		System.out.println("Entrer : ");
 		System.out.println("i --> Info sur l'esquipement ");

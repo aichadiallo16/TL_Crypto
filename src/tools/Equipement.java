@@ -1,6 +1,7 @@
 package tools;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -78,6 +79,14 @@ public PublicKey maClePub() {
 return maCle.Publique();
 
 }
+
+public PrivateKey maClePrivee() {
+
+return maCle.Privee();
+
+}
+
+
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public HashMap afficheMonCertif() {

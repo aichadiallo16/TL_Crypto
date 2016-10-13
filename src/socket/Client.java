@@ -99,7 +99,7 @@ public class Client {
 	public static void main(String[] args) throws Exception {
 		
 		
-		equipementClient = new Equipement("sonyClient", 8080);
+		equipementClient = new Equipement("sonyClient", 5002);
 		Client client = new Client(equipementClient);
 		
 	}

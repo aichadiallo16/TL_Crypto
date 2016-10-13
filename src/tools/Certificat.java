@@ -3,7 +3,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.SignatureException;
@@ -35,7 +35,7 @@ static private BigInteger seqnum = BigInteger.ZERO;
 public X509Certificate x509;
 
 
-Certificat(String Issuer, String Subject, PaireClesRSA clePub, PaireClesRSA clePriv, int validityDays) throws InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException, CertificateException, OperatorCreationException {
+public Certificat(String Issuer, String Subject, PublicKey clePub, PrivateKey clePriv, int validityDays) throws InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException, CertificateException, OperatorCreationException {
 	Security.addProvider(new BouncyCastleProvider());
 	
 	
@@ -60,12 +60,12 @@ Certificat(String Issuer, String Subject, PaireClesRSA clePub, PaireClesRSA cleP
 	// On le positionne dans le futur certificat
 
 	seqnum=seqnum.add(BigInteger.ONE);
-	ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1WithRSA").build(clePub.Privee());
+	ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1WithRSA").build(clePriv);
 	
 
-	JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer, seqnum, startDate, expiryDate, subject, clePub.Publique()) ;
+	JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(issuer, seqnum, startDate, expiryDate, subject, clePub) ;
 	X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(builder.build(contentSigner));
-	certificate.verify(certificate.getPublicKey());
+	
 	this.x509 = certificate;
 
 }
