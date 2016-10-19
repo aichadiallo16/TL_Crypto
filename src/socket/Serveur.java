@@ -43,7 +43,10 @@ public class Serveur {
 		ObjectInputStream ois = null;	
 		OutputStream NativeOut = null;	
 		ObjectOutputStream oos = null;
-		
+		InputStream NativeIn1 = null;	
+		ObjectInputStream ois1 = null;	
+		OutputStream NativeOut1 = null;	
+		ObjectOutputStream oos1 = null;
 		
 		
 		
@@ -55,54 +58,93 @@ public class Serveur {
 			pw.flush();
 			pw.close();
 			String pemCert = sw.toString();
-			
-			System.out.println("\t\t___________" + equipementServer.monNom() + "___________"); 
-			serverSocket = new ServerSocket(equipementServer.getPort());
-			//System.out.println("Le serveur est à l'écoute du port "+ serverSocket.getLocalPort());
-			NewServerSocket = serverSocket.accept(); 
-		        
-		        
-		        
-		        NativeIn = NewServerSocket.getInputStream();	
-		    	ois = new ObjectInputStream(NativeIn);	
-		    	NativeOut = NewServerSocket.getOutputStream();	
-		    	oos = new ObjectOutputStream(NativeOut);	
-		    	
-		    	String res = (String) ois.readObject();
-		    	
 
-		    	certifRecu = certifFactory(res);
-		    	/**
-		    	 * on verifie le autocertificat recu avec la cle publique contenue dans le certificat recu
-		    	 */
-		    	certifRecu.verify(certifRecu.getPublicKey());
-		    	System.out.println("Un équipement s'est connecté: " + getInfoCertifRec().get("Issuer"));
-		    	
-		    	/**
-		    	 * Le server crée le certificat signé avec sa cle privee pour la clee publique di client
-		    	 */
-		    	@SuppressWarnings("unused")
-				Certificat certifClientparServeur = new Certificat(equipementServer.monNom(), certifRecu.getSubjectDN().toString(), certifRecu.getPublicKey(), equipementServer.maClePrivee(), 10);
-		    	
-		    	/**
-		    	 * il faut envoyer certifClientparServeur au client
-		    	 */
-		    	
-		    	
-		
-		    	oos.writeObject(pemCert);
-		    	oos.flush();
-		    	
-		    	
-		    	ois.close();
-		    	oos.close();
-		    	NativeIn.close();
-		    	NativeOut.close();
+
+			serverSocket = new ServerSocket(equipementServer.getPort());
+			System.out.println("Le serveur est a l'ecoute du port "+ serverSocket.getLocalPort());
+			NewServerSocket = serverSocket.accept(); 
+			System.out.println("Un equipement s'est connecte");
 			
-		                
-		        NewServerSocket.close();
-		        serverSocket.close();
-		        
+			//////////////////////////////////////Envoi de l autocertif du serveur au client////////////////////////////////////////
+			NativeOut1 = NewServerSocket.getOutputStream();	
+			oos1 = new ObjectOutputStream(NativeOut1);
+			NativeIn1 = NewServerSocket.getInputStream();	
+			ois1 = new ObjectInputStream(NativeIn1);	
+			System.out.println("outputstream cree");
+			oos1.writeObject(pemCert);
+			oos1.flush();
+			
+			//////////////////////// Reception du certif signe par le client et dont le sujet est le serveur ///////////////////////
+			
+			/**
+			 * Apres la phase de connection, le serveur recoit le certificat emis sur sa cle publique par le client, et en verifie l'integrite
+			 */
+
+			String res1 = (String) ois1.readObject();
+			X509Certificate certifRecu1 = certifFactory(res1);
+			Boolean verif = certifRecu1.getPublicKey().equals(equipementServer.maClePub());
+			if (verif) {
+				equipementServer.addCa(certifRecu1);
+			}
+
+			System.out.println("\nAffichage CA:\n");
+			equipementServer.affichage_ca();
+			
+			//ois1.close();
+			//oos1.close();
+			//NewServerSocket.shutdownInput();
+			//NativeIn1.close();
+			//NativeOut1.close();
+			
+			
+			///////////////////////////// Serveur recoit l autocertif du client ////////////////////////////////////////
+			
+			NativeIn = NewServerSocket.getInputStream();	
+			ois = new ObjectInputStream(NativeIn);	
+			NativeOut = NewServerSocket.getOutputStream();	
+			oos = new ObjectOutputStream(NativeOut);	
+
+			String res = (String) ois.readObject();
+
+
+			certifRecu = certifFactory(res);
+			
+			certifRecu.verify(certifRecu.getPublicKey());
+
+			
+			 ////////////////////// Envoi du certif signe avec la cle privee du serveur pour la clee publique du client /////////////
+			 
+			Certificat certifClientparServeur = new Certificat(equipementServer.monNom(), certifRecu.getSubjectDN().toString().replaceAll("CN=", ""), certifRecu.getPublicKey(), equipementServer.maClePrivee(), 10);
+
+			StringWriter swback = new StringWriter(); 
+			JcaPEMWriter pwback = new JcaPEMWriter(swback); 
+			pwback.writeObject(certifClientparServeur.x509); 
+			pwback.flush();
+			pwback.close();
+			String pemCertback = swback.toString();
+
+			System.out.println("Serveur: j'ai recu le certif:\n" + res + "\n+++++++++\n AutoCertif du Client decode: \n" +  certifRecu
+					+ "\n+++++++++\n Generation d'un certif pour le Client par le serveur: \n" + certifClientparServeur.x509.toString());
+
+
+
+			oos.writeObject(pemCertback);
+			oos.flush();
+
+
+			ois1.close();
+			oos1.close();
+			NativeIn1.close();
+			NativeOut1.close();
+			ois.close();
+			oos.close();
+			NativeIn.close();
+			NativeOut.close();
+			
+			///////////////////////////////////////////////// Fermeture Socket ///////////////////////////////////////////////////////
+
+			NewServerSocket.close();
+			serverSocket.close();
 		}catch (IOException | ClassNotFoundException e) {
 			
 			e.printStackTrace();
