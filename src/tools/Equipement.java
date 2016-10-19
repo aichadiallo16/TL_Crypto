@@ -51,8 +51,8 @@ public void affichage_ca() {
 
 public boolean addCa(X509Certificate CACertif) {
 	certifCA.put("certif", CACertif);
-	return true;
-}
+	return true; //
+}//
 
 
 public boolean addDa(X509Certificate DACertif) {
