@@ -10,7 +10,7 @@ public class PaireClesRSA {
 
 private KeyPair key;
 
-PaireClesRSA() throws NoSuchAlgorithmException {
+public PaireClesRSA() throws NoSuchAlgorithmException {
 
 // Constructeur : génération d’une paire de clé RSA.
 	// On va mettre un peu d'alea :

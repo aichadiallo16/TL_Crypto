@@ -8,7 +8,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -19,8 +18,6 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
-
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.io.pem.PemReader;
 
@@ -29,8 +26,9 @@ import tools.Equipement;
 
 public class Client {
 	private static Equipement equipementClient;
+	X509Certificate certifRecu;
 	public Client(Equipement equipementClient) throws ClassNotFoundException, CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
-		this.equipementClient = equipementClient;
+		Client.equipementClient = equipementClient;
 		Socket clientSocket;
 		InputStream NativeIn = null;
 		ObjectInputStream ois = null;
@@ -48,7 +46,7 @@ public class Client {
 			
 			
 			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());	
-		        System.out.println("Demande de connexion");
+		        System.out.println("Demande de connexion de" + equipementClient.monNom());
 		        
 		        NativeOut = clientSocket.getOutputStream();
 		    	oos = new ObjectOutputStream(NativeOut);
@@ -72,7 +70,7 @@ public class Client {
 		    	
 		    	CertificateFactory cert = CertificateFactory.getInstance("X.509");
 		    	ByteArrayInputStream in = (new ByteArrayInputStream(pr.readPemObject().getContent()));
-		    	X509Certificate certifRecu = (X509Certificate) cert.generateCertificate(in);
+		    	certifRecu = (X509Certificate) cert.generateCertificate(in);
 		    	//on verifie le certificat recu avec la cle publique contenue dans 
 		    	certifRecu.verify(certifRecu.getPublicKey());
 		    	System.out.println(certifRecu.getIssuerDN() + "*****");
@@ -100,7 +98,9 @@ public class Client {
 		
 		
 		equipementClient = new Equipement("sonyClient", 5002);
+		@SuppressWarnings("unused")
 		Client client = new Client(equipementClient);
+		
 		
 	}
 

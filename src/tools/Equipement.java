@@ -1,15 +1,9 @@
 package tools;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-
-import org.bouncycastle.jce.provider.X509CertificateObject;
-import org.bouncycastle.openssl.PEMWriter;
-import org.bouncycastle.util.io.pem.PemObjectGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 
 public class Equipement {
 
@@ -20,8 +14,9 @@ private AutoCertificat monCert; // Le certificat auto-signe.
 private String monNom; // Identite de l’equipement.
 
 private int monPort; // Le numéro de port d’ecoute.
-@SuppressWarnings("rawtypes")
-private HashMap certifCA ; 
+
+private HashMap<String, X509Certificate> certifCA ; 
+private HashMap<String, X509Certificate> certifDA ; 
 
 
 @SuppressWarnings("rawtypes")
@@ -31,12 +26,13 @@ this.monNom = nom;
 this.monPort = port;
 this.maCle = new PaireClesRSA();
 this.monCert = new AutoCertificat(nom, this.maCle, 10);
-this.certifCA = new HashMap();
+this.certifCA = new HashMap<String, X509Certificate>();
+this.certifDA = new HashMap<String, X509Certificate>();
 }
 
 public void affichage_da() {
 
-// Affichage de la liste des équipements de DA.
+	System.out.println(certifDA);
 
 }
 
@@ -52,14 +48,16 @@ public void affichage_ca() {
 
 	}
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public HashMap addCa(X509Certificate CACertif) {
 
-	
+public boolean addCa(X509Certificate CACertif) {
 	certifCA.put("certif", CACertif);
-	return certifCA;
+	return true;
+}
 
 
+public boolean addDa(X509Certificate DACertif) {
+	certifDA.put("certif", DACertif);
+	return true;
 }
 
 public void affichage() {
@@ -88,10 +86,12 @@ return maCle.Privee();
 
 
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public HashMap afficheMonCertif() {
 
-HashMap info = new HashMap(); 
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public HashMap<String, Object> afficheMonCertif() {
+
+HashMap<String, Object> info = new HashMap<String, Object>(); 
 info.put("SerialNumber", monCert.x509.getSerialNumber());
 info.put("Issuer", monCert.x509.getIssuerDN());
 info.put("StartDate", monCert.x509.getNotBefore());
