@@ -1,5 +1,5 @@
 package tools;
-
+/*
 import socket.Client;
 import socket.Serveur;
 
@@ -39,6 +39,6 @@ public class Main {
         clientThread.start();
     }
 }
-
+*/
 
 

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -23,8 +22,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.util.io.pem.PemReader;
-
 import tools.Certificat;
 import tools.Equipement;
 
@@ -85,8 +82,8 @@ public class Client {
 			pwback.close();
 			String pemCertback = swback.toString();
 
-			System.out.println("Client: j'ai recu le certif:\n" + res1 + "\n+++++++++\n AutoCertif du Serveur decode: \n" +  certifRecu1
-					+ "\n+++++++++\n Generation d'un certif pour le Serveur par le Client: \n" + certifServeurparClient.x509.toString());
+			//System.out.println("Client: j'ai recu le certif:\n" + res1 + "\n+++++++++\n AutoCertif du Serveur decode: \n" +  certifRecu1
+				//	+ "\n+++++++++\n Generation d'un certif pour le Serveur par le Client: \n" + certifServeurparClient.x509.toString());
 
 
 
@@ -118,11 +115,11 @@ public class Client {
 				equipementClient.addCa(certifRecu);
 			}
 			
-			System.out.println("\nClient: j'ai recu un certificat sur ma cle publique signe par le serveur:\nVersion PEM:\n"
-			+ res + "\nVersion decode:\n" + certifRecu + "\nLe certificat recu a la bonne cle: " + verif);
+			//System.out.println("\nClient: j'ai recu un certificat sur ma cle publique signe par le serveur:\nVersion PEM:\n"
+			//+ res + "\nVersion decode:\n" + certifRecu + "\nLe certificat recu a la bonne cle: " + verif);
 			
-			System.out.println("\nAffichage CA:\n");
-			equipementClient.affichage_ca();
+			//System.out.println("\nAffichage CA:\n");
+			//equipementClient.affichage_ca();
 
 			ois.close();
 			oos.close();

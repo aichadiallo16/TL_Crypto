@@ -70,7 +70,7 @@ public class Serveur {
 			oos1 = new ObjectOutputStream(NativeOut1);
 			NativeIn1 = NewServerSocket.getInputStream();	
 			ois1 = new ObjectInputStream(NativeIn1);	
-			System.out.println("outputstream cree");
+			//System.out.println("outputstream cree");
 			oos1.writeObject(pemCert);
 			oos1.flush();
 			
@@ -87,8 +87,8 @@ public class Serveur {
 				equipementServer.addCa(certifRecu1);
 			}
 
-			System.out.println("\nAffichage CA:\n");
-			equipementServer.affichage_ca();
+			//System.out.println("\nAffichage CA:\n");
+			//equipementServer.affichage_ca();
 			
 			//ois1.close();
 			//oos1.close();
@@ -123,8 +123,8 @@ public class Serveur {
 			pwback.close();
 			String pemCertback = swback.toString();
 
-			System.out.println("Serveur: j'ai recu le certif:\n" + res + "\n+++++++++\n AutoCertif du Client decode: \n" +  certifRecu
-					+ "\n+++++++++\n Generation d'un certif pour le Client par le serveur: \n" + certifClientparServeur.x509.toString());
+			//System.out.println("Serveur: j'ai recu le certif:\n" + res + "\n+++++++++\n AutoCertif du Client decode: \n" +  certifRecu
+				//	+ "\n+++++++++\n Generation d'un certif pour le Client par le serveur: \n" + certifClientparServeur.x509.toString());
 
 
 
@@ -227,7 +227,7 @@ public HashMap<String, Object> getInfoCertifRec() {
 		}
 		else if (readString.equals("c") && rep.equals("y") ) {
 			equipementServer.affichage_ca();
-			
+			System.out.println("vous voulez faire autre chose? Y/N");
 			Scanner reponseScan = new Scanner(System.in);
 			rep = reponseScan.nextLine();
 			if(rep.equals("n")) {
@@ -237,7 +237,7 @@ public HashMap<String, Object> getInfoCertifRec() {
 		}
 		else if (readString.equals("d") && rep.equals("y") ) {
 			equipementServer.affichage_da();
-			//System.out.println("D");
+			System.out.println("vous voulez faire autre chose? Y/N");
 			Scanner reponseScan = new Scanner(System.in);
 			rep = reponseScan.nextLine();
 			if(rep.equals("n")) {
