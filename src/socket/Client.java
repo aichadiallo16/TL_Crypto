@@ -1,5 +1,6 @@
 package socket;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,6 +21,9 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+
+
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.OperatorCreationException;
 import tools.Certificat;
@@ -40,6 +44,8 @@ public class Client {
 		ObjectInputStream ois1 = null;
 		OutputStream NativeOut1 = null;
 		ObjectOutputStream oos1 = null;
+		
+		
 
 		try {
 			StringWriter sw = new StringWriter(); 
@@ -50,19 +56,27 @@ public class Client {
 			String pemCert = sw.toString();
 
 
-
-			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());	
+			//String IPServer = "192.168.56.101";
+			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
+			//clientSocket = new Socket(IPServer, equipementClient.getPort());
 			System.out.println("Demande de connexion");
 			
 			///////////////////////////// Client recoit l autocertif du serveur ////////////////////////////////////////
 			
 			NativeIn1 = clientSocket.getInputStream();	
-			ois1 = new ObjectInputStream(NativeIn1);	
+			ois1 = new ObjectInputStream(NativeIn1);
+			
 			NativeOut1 = clientSocket.getOutputStream();	
 			oos1 = new ObjectOutputStream(NativeOut1);	
 
+			
 			String res1 = (String) ois1.readObject();
-
+			
+			////
+			
+			ois1.reset();
+			String infoWifiServer = (String) ois1.readObject();
+			System.out.println(infoWifiServer);
 
 			X509Certificate certifRecu1 = certifFactory(res1);
 			/*
@@ -90,12 +104,8 @@ public class Client {
 			oos1.writeObject(pemCertback);
 			oos1.flush();
 
-
-			//ois1.close();
-			//oos1.close();
-			//clientSocket.shutdownInput();
-			//NativeIn1.close();
-			//NativeOut1.close();
+			
+			
 			
 			///////////////////////////////////////// Envoi de l autocertif du client au serveur ///////////////////////////////////////////
 
@@ -129,6 +139,7 @@ public class Client {
 			oos1.close();
 			NativeIn1.close();
 			NativeOut1.close();
+	
 			
 			///////////////////////////////////////////////// Fermeture Socket ///////////////////////////////////////////////////////
 
@@ -157,7 +168,10 @@ public X509Certificate certifFactory (String res) throws UnsupportedEncodingExce
 	public static void main(String[] args) throws Exception {
 		
 		
-		equipementClient = new Equipement("sonyClient", 5002);
+		
+		String nom = "DVDclient";
+		
+		equipementClient = new Equipement(nom, 5005);
 		@SuppressWarnings("unused")
 		Client client = new Client(equipementClient);
 		

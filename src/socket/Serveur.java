@@ -50,6 +50,7 @@ public class Serveur {
 		
 		
 		
+		
 		try {
 			
 			StringWriter sw = new StringWriter(); 
@@ -64,7 +65,7 @@ public class Serveur {
 			System.out.println("Le serveur est a l'ecoute du port "+ serverSocket.getLocalPort());
 			NewServerSocket = serverSocket.accept(); 
 			System.out.println("Un equipement s'est connecte");
-			
+			System.out.println(equipementServer.getNetworkInfo().toString()); /////
 			//////////////////////////////////////Envoi de l autocertif du serveur au client////////////////////////////////////////
 			NativeOut1 = NewServerSocket.getOutputStream();	
 			oos1 = new ObjectOutputStream(NativeOut1);
@@ -74,6 +75,10 @@ public class Serveur {
 			oos1.writeObject(pemCert);
 			oos1.flush();
 			
+			oos1.reset();
+			
+			oos1.writeObject(equipementServer.getNetworkInfo());
+			oos1.flush();
 			//////////////////////// Reception du certif signe par le client et dont le sujet est le serveur ///////////////////////
 			
 			/**
@@ -86,26 +91,20 @@ public class Serveur {
 			if (verif) {
 				equipementServer.addCa(certifRecu1);
 			}
-
-			//System.out.println("\nAffichage CA:\n");
-			//equipementServer.affichage_ca();
-			
-			//ois1.close();
-			//oos1.close();
-			//NewServerSocket.shutdownInput();
-			//NativeIn1.close();
-			//NativeOut1.close();
 			
 			
 			///////////////////////////// Serveur recoit l autocertif du client ////////////////////////////////////////
 			
 			NativeIn = NewServerSocket.getInputStream();	
 			ois = new ObjectInputStream(NativeIn);	
+			
 			NativeOut = NewServerSocket.getOutputStream();	
 			oos = new ObjectOutputStream(NativeOut);	
 
 			String res = (String) ois.readObject();
 
+
+			
 
 			certifRecu = certifFactory(res);
 			
@@ -125,7 +124,7 @@ public class Serveur {
 
 			//System.out.println("Serveur: j'ai recu le certif:\n" + res + "\n+++++++++\n AutoCertif du Client decode: \n" +  certifRecu
 				//	+ "\n+++++++++\n Generation d'un certif pour le Client par le serveur: \n" + certifClientparServeur.x509.toString());
-
+			
 
 
 			oos.writeObject(pemCertback);
@@ -140,6 +139,8 @@ public class Serveur {
 			oos.close();
 			NativeIn.close();
 			NativeOut.close();
+			
+			
 			
 			///////////////////////////////////////////////// Fermeture Socket ///////////////////////////////////////////////////////
 
@@ -176,7 +177,10 @@ public HashMap<String, Object> getInfoCertifRec() {
 	
 	public static void main(String[] args) throws Exception {
 		
-		equipementServer = new Equipement("samsungServer", 5002);
+		
+		String nom = "TVserver";
+		
+		equipementServer = new Equipement(nom, 5005);
 		
 		Serveur serveur = new Serveur(equipementServer);
 		String rep = "y";
@@ -186,6 +190,7 @@ public HashMap<String, Object> getInfoCertifRec() {
 		System.out.println("c --> Liste des equipements CA ");
 		System.out.println("d --> Liste des equipement DA ");
 		System.out.println("i --> Info sur l'equipement ");
+		System.out.println("v --> Verifie l'equipement ");
 		System.out.println("a --> Ajouter l'equipement " + serveur.getInfoCertifRec().get("Issuer"));
 		System.out.println("q --> Quitter ");
 		
@@ -210,6 +215,11 @@ public HashMap<String, Object> getInfoCertifRec() {
 		else if (readString.equals("q") && rep.equals("y") ) {
 			scanner.close();
 			System.exit(0);
+		}
+		
+		else if (readString.equals("v") && rep.equals("y") ) {
+			scanner.close();
+			
 		}
 			
 		else if (readString.equals("a") && rep.equals("y") ) {
@@ -249,7 +259,7 @@ public HashMap<String, Object> getInfoCertifRec() {
 	}	
 		
 	scanner.close();
-		
+	//scannerNom.close();
 	}
 
 	

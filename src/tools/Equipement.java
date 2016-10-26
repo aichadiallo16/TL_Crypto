@@ -1,9 +1,17 @@
 package tools;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 
 public class Equipement {
 
@@ -17,6 +25,9 @@ private int monPort; // Le numéro de port d’ecoute.
 
 private HashMap<String, X509Certificate> certifCA ; 
 private HashMap<String, X509Certificate> certifDA ; 
+@SuppressWarnings("rawtypes")
+private List addresses ; 
+
 
 
 @SuppressWarnings("rawtypes")
@@ -28,7 +39,12 @@ this.maCle = new PaireClesRSA();
 this.monCert = new AutoCertificat(nom, this.maCle, 10);
 this.certifCA = new HashMap<String, X509Certificate>();
 this.certifDA = new HashMap<String, X509Certificate>();
+this.addresses = new ArrayList();
+
+
 }
+
+
 
 public void affichage_da() {
 
@@ -49,10 +65,30 @@ public void affichage_ca() {
 	}
 
 
+@SuppressWarnings({ "rawtypes", "unchecked"})
+public List getNetworkInfo() throws SocketException {
+	
+	Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+	
+	
+	while (interfaces.hasMoreElements()) {
+		
+NetworkInterface networkInterface = interfaces.nextElement();
+Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+
+	while (inetAddresses.hasMoreElements()) {
+		
+	addresses.add(inetAddresses.nextElement());
+			}
+		}
+	return addresses;
+		
+}
+
 public boolean addCa(X509Certificate CACertif) {
 	certifCA.put("certif", CACertif);
-	return true; //
-}//
+	return true; 
+}
 
 
 public boolean addDa(X509Certificate DACertif) {
@@ -88,7 +124,7 @@ return maCle.Privee();
 
 
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
+
 public HashMap<String, Object> afficheMonCertif() {
 
 HashMap<String, Object> info = new HashMap<String, Object>(); 
