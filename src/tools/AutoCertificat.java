@@ -15,7 +15,6 @@ import java.util.Date;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.ContentSigner;
@@ -60,7 +59,6 @@ AutoCertificat(String nom, PaireClesRSA cle, int validityDays) throws InvalidKey
 		ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1WithRSA").build(cle.Privee());
 		
 
-		
 		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(cnName, seqnum, startDate, expiryDate, cnName, cle.Publique()) ;
 		X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(builder.build(contentSigner));
 		certificate.verify(certificate.getPublicKey());
