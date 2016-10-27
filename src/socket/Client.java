@@ -17,6 +17,7 @@ import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -60,14 +61,7 @@ public class Client {
 		OutputStream NativeOut4 = null;
 		ObjectOutputStream oos4 = null;
 		
-		InputStream NativeInWifi = null;
-		ObjectInputStream oisWifi = null;
 		
-		/**
-		 * 
-		 */
-	
-
 		try {
 			
 			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
@@ -83,18 +77,8 @@ public class Client {
 				new ObjectOutputStream(NativeOut3);
 				int choix = (int) ois3.readObject();
 				if (choix == 1) {
-					/**
-					 * 
-					 
-					///////////////////////////// Envoi des
-					///////////////////////////// infos sur le reseau au serveur 
-					OutputStream NativeOutWifi = clientSocket.getOutputStream();
-					ObjectOutputStream oosWifi = new ObjectOutputStream(NativeOutWifi);
-					NativeInWifi = clientSocket.getInputStream();
-					oisWifi = new ObjectInputStream(NativeInWifi);
-					oosWifi.writeObject(equipementClient.getNetworkInfo());
-					oosWifi.flush();*/
 					
+					 
 					///////////////////////////////////// Ajout du serveur dans
 					///////////////////////////////////// DA
 					
@@ -111,7 +95,8 @@ public class Client {
 					//////////////////////////////////////// au
 					//////////////////////////////////////// serveur
 
-					oos.writeObject(equipementClient.monNom());
+					oos.writeObject(equipementClient.monNom() + "_%_" + equipementClient.getNetworkInfo());
+					
 					oos.flush();
 				}
 
@@ -256,9 +241,10 @@ public class Client {
 
 	public static void main(String[] args) throws Exception {
 
-		equipementClient = new Equipement("sonyClient", 6003);
+		equipementClient = new Equipement("sonyClient", 6008);
 		new Client(equipementClient);
 		equipementClient.affichage_da();
+		System.out.println(equipementClient.getInfoClientWifi());
 
 	}
 

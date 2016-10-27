@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
@@ -14,7 +15,9 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -52,24 +55,10 @@ public class Serveur {
 	
 	
 	
+	@SuppressWarnings("unchecked")
 	public String clientName() throws IOException, ClassNotFoundException {
-		/*OutputStream NativeOutWifi = null;
-		ObjectOutputStream oosWifi = null;
-		InputStream NativeInWifi = null;
-		ObjectInputStream oisWifi = null;
-		NativeInWifi = NewServerSocket.getInputStream();
-		oisWifi = new ObjectInputStream(NativeInWifi);
-		NativeOutWifi = NewServerSocket.getOutputStream();
-		oosWifi = new ObjectOutputStream(NativeOutWifi); 
-		
-		////////////////////////Reception des 
-		//////////////////////// infos Wifi du client
-		
-		
-		String info = (String) oisWifi.readObject();
-		System.out.println(info);
-		equipementServer.addInfoClientWifi("ciai");*/
-		
+	
+	
 		//////////////////////////////////////////// Envoi du nom du serveur
 		//////////////////////////////////////////// au client
 		int choix = 1 ;
@@ -103,7 +92,11 @@ public class Serveur {
 		return res2;
 	}
 
-
+public String[] splitString(String res) {
+	String[] result = res.split("_%_");
+	return result;
+	
+}
 	
 	public void initServer() throws IOException, CertificateException, ClassNotFoundException, InvalidKeyException,
 			NoSuchAlgorithmException, NoSuchProviderException, SignatureException, IllegalStateException,
@@ -252,7 +245,7 @@ public class Serveur {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception {
 
-		equipementServer = new Equipement("samsungServer", 6003);
+		equipementServer = new Equipement("samsungServer", 6008);
 
 		Serveur serveur = new Serveur(equipementServer);
 		String rep = "";
@@ -291,13 +284,17 @@ public class Serveur {
 			
 			else if (readString.equals("a")) 
 			{
-				//if (equipementServer.verifyNetwork(infoWifiClient)) {
-				equipementServer.addDa(serveur.clientName());
-				rep= "";
-				//}
-				//else {
-					System.out.println("l'equipement n'appartient pas a votre reseau" + equipementServer.getInfoClientWifi() );
-				//}
+				String[] output = serveur.splitString(serveur.clientName());
+			
+				if (equipementServer.verifyNetwork(output[1])) {
+				
+				equipementServer.addDa(output[0]);
+				System.out.println(output[1]);
+				rep= ""; }
+				
+				else {
+					System.out.println("l'equipement n'appartient pas a votre reseau" + output[1] );
+				}
 			}
 
 			else if (readString.equals("c")) 
@@ -306,8 +303,8 @@ public class Serveur {
 				rep= "";
 			}  
 			else if (readString.equals("s")) 
-			{																			// Cette condition n'est pas une securite, elle force juste l'utilisateur  
-				if(equipementServer.equipDa().containsValue(serveur.clientName())){    //a ajouter l'equipement  client dans DA avant d'echanger les certif
+			{	String[] output = serveur.splitString(serveur.clientName());																		// Cette condition n'est pas une securite, elle force juste l'utilisateur  
+				if(equipementServer.equipDa().containsValue(output[0])){    //a ajouter l'equipement  client dans DA avant d'echanger les certif
 					serveur.initServer();
 				}
 				else {
