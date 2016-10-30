@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
@@ -55,8 +54,8 @@ public class Client {
 		
 		try {
 			
-			//clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
-			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
+			clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
+			//clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
 
 			
 			while (true) {

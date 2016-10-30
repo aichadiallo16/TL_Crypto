@@ -90,10 +90,18 @@ public void addCa(X509Certificate CACertif) {
 
 }
 
-public boolean verifyNetwork(List<String> infoClient) throws SocketException {
+public boolean verifyNetwork(String infoClient) throws SocketException {
 	int count = 0;
 	
-	for (String info : infoClient) {
+	String clean = infoClient.substring(1, infoClient.length()-1);
+	String[] Allinterfaces = clean.split(", ");
+	List<String> interfacesList = new ArrayList<String>();
+	for (String interfaces : Allinterfaces) {
+		if(!interfacesList.contains(interfaces)) {
+			interfacesList.add(interfaces);
+		}
+	}
+	for (String info : interfacesList) {
 		
 		if (this.getNetworkInfo().contains(info)) {
 			count++;
