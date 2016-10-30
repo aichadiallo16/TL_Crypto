@@ -34,7 +34,7 @@ private int monPort; // Le numéro de port d’ecoute.
 private HashMap<String, X509Certificate> certifCA ;
 private HashMap<String, String> equipDA ;
 
-private List<InetAddress> addresses ;
+private List<String> addresses ;
 private List<String> infoClientWifi;
 
 
@@ -47,7 +47,7 @@ this.maCle = new PaireClesRSA();
 this.monCert = new AutoCertificat(nom, this.maCle, 10);
 this.certifCA = new HashMap<String, X509Certificate>();
 this.equipDA = new HashMap<String, String>();
-this.addresses = new ArrayList<InetAddress>();
+this.addresses = new ArrayList<String>();
 this.infoClientWifi = new ArrayList<String>();
 }
 
@@ -70,7 +70,7 @@ public HashMap<String, X509Certificate> certifCa() {
 }
 
 
-public List<InetAddress> getNetworkInfo() throws SocketException {
+public List<String> getNetworkInfo() throws SocketException {
 
 	Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 	while (interfaces.hasMoreElements()) {
@@ -79,7 +79,7 @@ NetworkInterface networkInterface = interfaces.nextElement();
 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
 
 	while (inetAddresses.hasMoreElements()) {
-	addresses.add(inetAddresses.nextElement());
+	addresses.add(inetAddresses.nextElement().toString());
 			}
 		}
 	return addresses;
@@ -90,8 +90,16 @@ public void addCa(X509Certificate CACertif) {
 
 }
 
-public boolean verifyNetwork(String infoClient) throws SocketException {
-	if (this.getNetworkInfo().toString().compareTo(infoClient) ==0) return true;
+public boolean verifyNetwork(List<String> infoClient) throws SocketException {
+	int count = 0;
+	
+	for (String info : infoClient) {
+		
+		if (this.getNetworkInfo().contains(info)) {
+			count++;
+		}
+	}
+	if (count>=2) return true;
 	return false;
 	
 }

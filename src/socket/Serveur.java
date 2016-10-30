@@ -13,7 +13,10 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -44,6 +47,7 @@ public class Serveur {
     		NewServerSocket = serverSocket.accept();
 	
 	}
+	
 	
 	
 	
@@ -236,7 +240,7 @@ public String[] splitString(String res) {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception {
 
-		equipementServer = new Equipement("samsungServer", 6008);
+		equipementServer = new Equipement("samsungServer", 7008);
 
 		Serveur serveur = new Serveur(equipementServer);
 		String rep = "";
@@ -276,15 +280,23 @@ public String[] splitString(String res) {
 			else if (readString.equals("a")) 
 			{
 				String[] output = serveur.splitString(serveur.clientName());
-			
-				if (equipementServer.verifyNetwork(output[1])) {
+				String clean = output[1].substring(1, output[1].length()-1);
+				String[] Allinterfaces = clean.split(", ");
+				List<String> interfacesList = new ArrayList<String>();
+				for (String interfaces : Allinterfaces) {
+					if(!interfacesList.contains(interfaces)) {
+						interfacesList.add(interfaces);
+					}
+				}
+				
+				if (equipementServer.verifyNetwork(interfacesList)) {
 				
 				equipementServer.addDa(output[0]);
-				System.out.println(output[1]);
+				
 				rep= ""; }
 				
 				else {
-					System.out.println("l'equipement n'appartient pas a votre reseau" + output[1] );
+					System.out.println("l'equipement n'appartient pas a votre reseau" + interfacesList );
 				}
 			}
 

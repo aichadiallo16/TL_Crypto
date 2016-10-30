@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
@@ -55,7 +55,8 @@ public class Client {
 		
 		try {
 			
-			clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
+			//clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
+			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
 
 			
 			while (true) {
@@ -86,7 +87,7 @@ public class Client {
 					//////////////////////////////////////// au
 					//////////////////////////////////////// serveur
 
-					oos.writeObject(equipementClient.monNom() + "_%_" + equipementClient.getNetworkInfo());
+					oos.writeObject(equipementClient.monNom() + "_%_" + equipementClient.getNetworkInfo().toString());
 					
 					oos.flush();
 				}
@@ -232,7 +233,7 @@ public class Client {
 
 	public static void main(String[] args) throws Exception {
 
-		equipementClient = new Equipement("sonyClient", 6008);
+		equipementClient = new Equipement("sonyClient", 7008);
 		new Client(equipementClient);
 		equipementClient.affichage_da();
 		System.out.println(equipementClient.getInfoClientWifi());
