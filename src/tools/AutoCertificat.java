@@ -59,6 +59,7 @@ AutoCertificat(String nom, PaireClesRSA cle, int validityDays) throws InvalidKey
 		ContentSigner contentSigner = new JcaContentSignerBuilder("SHA1WithRSA").build(cle.Privee());
 		
 
+		
 		JcaX509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(cnName, seqnum, startDate, expiryDate, cnName, cle.Publique()) ;
 		X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(builder.build(contentSigner));
 		certificate.verify(certificate.getPublicKey());
