@@ -12,7 +12,7 @@ private KeyPair key;
 
 public PaireClesRSA() throws NoSuchAlgorithmException {
 
-// Constructeur : génération d’une paire de clé RSA.
+// Constructeur : generation d'une paire de cles RSA.
 	// On va mettre un peu d'alea :
 
 	SecureRandom rand = new SecureRandom();

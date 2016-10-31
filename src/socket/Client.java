@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
@@ -23,7 +24,6 @@ import tools.Equipement;
 
 public class Client {
 	private static Equipement equipementClient;
-	X509Certificate certifRecu;
 	private Socket clientSocket;
 
 	public Client(Equipement equipementClient)
@@ -54,11 +54,12 @@ public class Client {
 		
 		try {
 			
-			clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
-			//clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
+			//clientSocket = new Socket("192.168.56.101",equipementClient.getPort());
+			clientSocket = new Socket(InetAddress.getLocalHost(),equipementClient.getPort());
 
 			
 			while (true) {
+				
 				InputStream NativeIn3 = null;
 				ObjectInputStream ois3 = null;
 				OutputStream NativeOut3 = null;
@@ -66,57 +67,46 @@ public class Client {
 				ois3 = new ObjectInputStream(NativeIn3);
 				NativeOut3 = clientSocket.getOutputStream();
 				new ObjectOutputStream(NativeOut3);
-				int choix = (int) ois3.readObject();
-				if (choix == 1) {
+				
+				int choix = (int) ois3.readObject(); // on recoit le choix fait par l'utilisateur
+				
+				if (choix == 1) {	// connexion
 					
 					 
-					///////////////////////////////////// Ajout du serveur dans
-					///////////////////////////////////// DA
+					// Ajout du serveur dans DA
 					
 					NativeIn = clientSocket.getInputStream();
 					ois = new ObjectInputStream(NativeIn);
 					NativeOut = clientSocket.getOutputStream();
 					oos = new ObjectOutputStream(NativeOut);
 
-					String res2 = (String) ois.readObject();
-					equipementClient.addDa(res2);
+					String serverName = (String) ois.readObject();
+					equipementClient.addDa(serverName);
 
-					//////////////////////////////////////// Envoi du nom du
-					//////////////////////////////////////// client
-					//////////////////////////////////////// au
-					//////////////////////////////////////// serveur
+					// Envoi du nom et des infos reseau au serveur
 
 					oos.writeObject(equipementClient.monNom() + "_%_" + equipementClient.getNetworkInfo().toString());
-					
 					oos.flush();
 				}
 
-				if (choix == 2) {
+				if (choix == 2) {	// synchronisation
+					
 					NativeOut1 = clientSocket.getOutputStream();
 					oos1 = new ObjectOutputStream(NativeOut1);
 					NativeIn1 = clientSocket.getInputStream();
 					ois1 = new ObjectInputStream(NativeIn1);
 
-					///////////////////////////////////////// Envoi de l
-					///////////////////////////////////////// autocertif
-					///////////////////////////////////////// du
-					///////////////////////////////////////// client au serveur
+					// Envoi de l'autocertificat du client au serveur
 
 					equipementClient.envoiCertif(equipementClient.monCertif().x509, oos1);
 
-					///////////////////////////// Client recoit l autocertif du
-					///////////////////////////// serveur
-					///////////////////////////// ///////////////////////////////////////
+					// Le client recoit l'autocertificat du serveur et le verifie
 
-					X509Certificate certifRecu1 = equipementClient.certifFactory(ois1);
+					X509Certificate autoCertifRecu = equipementClient.certifFactory(ois1);
 
-					certifRecu1.verify(certifRecu1.getPublicKey());
+					autoCertifRecu.verify(autoCertifRecu.getPublicKey()); // verification
 
-					////////////////////// Envoi du certif signe avec la cle
-					////////////////////// privee
-					////////////////////// du
-					////////////////////// Client pour la clee publique du
-					////////////////////// Serveur
+					// Envoi du certif signe avec la cle privee du Client pour la clee publique du Serveur
 
 					NativeOut2 = clientSocket.getOutputStream();
 					oos2 = new ObjectOutputStream(NativeOut2);
@@ -124,28 +114,22 @@ public class Client {
 					ois2 = new ObjectInputStream(NativeIn2);
 
 					Certificat certifServeurparClient = new Certificat(equipementClient.monNom(),
-							certifRecu1.getSubjectDN().toString().replaceAll("CN=", ""), certifRecu1.getPublicKey(),
+							autoCertifRecu.getSubjectDN().toString().replaceAll("CN=", ""), autoCertifRecu.getPublicKey(),
 							equipementClient.maClePrivee(), 10);
 
 					equipementClient.envoiCertif(certifServeurparClient.x509, oos2);
 
-					/////////////////////////// Reception du certif signe par le
-					/////////////////////////// serveur
-					/////////////////////////// et dont le sujet est le client
+					// Reception du certif signe par le serveur et dont le sujet est le client
 
 					X509Certificate certifRecu = equipementClient.certifFactory(ois2);
-					Boolean verif = certifRecu.getPublicKey().equals(equipementClient.maClePub());
+					Boolean verif = certifRecu.getPublicKey().equals(equipementClient.maClePub()); // on verifie que le certificat porte sur la cle publique du client
 					if (verif) 
 					{
 						equipementClient.addCa(certifRecu);
 					}
+
+					// Envoi de DAclient au serveur
 					
-					
-					 
-					
-					///////////////////////////// Envoi de
-					///////////////////////////// DAclient au serveur
-					equipementClient.addDa("amiClient");
 					NativeOut4 = clientSocket.getOutputStream();
 					oos4 = new ObjectOutputStream(NativeOut4);
 					NativeIn4 = clientSocket.getInputStream();
@@ -154,12 +138,11 @@ public class Client {
 					oos4.writeObject(equipementClient.equipDa());
 					oos4.flush();
 					
-					//////////////////////////// Reception de DAserver et ajout
-					//////////////////////////// de DAserver dans DAclient
+					// Reception de DAserver et ajout de DAserver dans DAclient
 					
 					equipementClient.putAllDA(ois4, equipementClient);
 					
-					/////////////////////////// Envoi de CAclient au serveur
+					// Envoi de CAclient au serveur
 					
 					Iterator<Entry<String, X509Certificate>> it = equipementClient.certifCa().entrySet().iterator();
 					int tailleC = equipementClient.certifCa().size();
@@ -172,7 +155,7 @@ public class Client {
 					NativeIn5 = clientSocket.getInputStream();
 					new ObjectInputStream(NativeIn5);
 					
-					oos5.writeObject(tailleC);
+					oos5.writeObject(tailleC); // le client envoie d'abord le nombre de certificats qu'il va envoyer
 					
 					while (it.hasNext()) {
 							InputStream NativeIn6 = null;
@@ -190,7 +173,7 @@ public class Client {
 					       
 					    }
 					
-					//////////////////////// Reception de CAserver
+					// Reception de CAserver
 					InputStream NativeIn7 = null;
 					ObjectInputStream ois7 = null;
 					OutputStream NativeOut7 = null;
@@ -199,7 +182,7 @@ public class Client {
 					NativeIn7 = clientSocket.getInputStream();
 					ois7 = new ObjectInputStream(NativeIn7);
 					
-					int tailleS = (int) ois7.readObject();;
+					int tailleS = (int) ois7.readObject(); 
 					
 					while(tailleS != 0) {
 						
@@ -211,7 +194,7 @@ public class Client {
 						NativeOut8 = clientSocket.getOutputStream();
 						new ObjectOutputStream(NativeOut8);
 						
-						X509Certificate certifCa = equipementClient.certifFactory(ois8);
+						X509Certificate certifCa = equipementClient.certifFactory(ois8); // les certificats sont recus au format PEM donc on les remet au format x509
 						equipementClient.addCa(certifCa);
 						tailleS--;
 					}
@@ -232,10 +215,8 @@ public class Client {
 
 	public static void main(String[] args) throws Exception {
 
-		equipementClient = new Equipement("sonyClient", 7008);
+		equipementClient = new Equipement("sonyClient", 6000);
 		new Client(equipementClient);
-		equipementClient.affichage_da();
-		System.out.println(equipementClient.getInfoClientWifi());
 
 	}
 
